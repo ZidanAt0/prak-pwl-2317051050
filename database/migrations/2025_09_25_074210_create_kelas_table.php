@@ -11,11 +11,21 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('kelas', function (Blueprint $table) {
-            $table->id();
-            $table->string('nama_kelas');
-            $table->timestamps();
-        });
+        // HANYA buat kalau belum ada
+        if (!Schema::hasTable('kelas')) {
+            Schema::create('kelas', function (Blueprint $table) {
+                $table->id();
+                $table->string('nama_kelas'); // atau string('nama_kelas', 50)
+                $table->timestamps();
+            });
+        } else {
+            // (Opsional) kalau tabel sudah ada tapi kolom 'nama_kelas' belum ada
+            if (!Schema::hasColumn('kelas', 'nama_kelas')) {
+                Schema::table('kelas', function (Blueprint $table) {
+                    $table->string('nama_kelas')->nullable();
+                });
+            }
+        }
     }
 
     /**
