@@ -8,12 +8,22 @@ use App\Http\Controllers\MataKuliahController;
 Route::get('/', function () {
     return view('welcome');
 });
-Route::get('/user', [UserController::class, 'index']);
-Route::get('/user/create', [UserController::class, 'create'])->name('user.create');
-Route::post('/user', [UserController::class, 'store'])->name('user.store');
-Route::get('/user', [UserController::class, 'index'])->name('user.index');
+Route::prefix('user')->name('user.')->group(function () {
+    Route::get('/',        [UserController::class, 'index'])->name('index');
+    Route::get('/create',  [UserController::class, 'create'])->name('create');
+    Route::post('/',       [UserController::class, 'store'])->name('store');
+    Route::get('/{id}/edit', [UserController::class, 'edit'])->name('edit');
+    Route::put('/{id}',      [UserController::class, 'update'])->name('update');
+    Route::delete('/{id}',   [UserController::class, 'destroy'])->name('destroy');
+});
+Route::prefix('mata-kuliah')->name('matakuliah.')->group(function () {
+    Route::get('/',          [MataKuliahController::class, 'index'])->name('index');
+    Route::get('/create',    [MataKuliahController::class, 'create'])->name('create');
+    Route::post('/',         [MataKuliahController::class, 'store'])->name('store');
+    Route::get('/{id}/edit', [MataKuliahController::class, 'edit'])->name('edit');
+    Route::put('/{id}',      [MataKuliahController::class, 'update'])->name('update');
+    Route::delete('/{id}',   [MataKuliahController::class, 'destroy'])->name('destroy');
+});
 
-Route::get('/matakuliah', [MataKuliahController::class, 'index']);
-Route::get('/matakuliah/create', [MataKuliahController::class, 'create'])->name('matakuliah.create');
-Route::post('/matakuliah', [MataKuliahController::class, 'store'])->name('matakuliah.store');
-
+Route::redirect('/matakuliah', '/mata-kuliah');
+Route::redirect('/matakuliah/create', '/mata-kuliah/create');

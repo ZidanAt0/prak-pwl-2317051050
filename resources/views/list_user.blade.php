@@ -3,56 +3,39 @@
 @section('content')
 <div class="container py-4">
 
-  {{-- Header --}}
-  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
-    <div>
-      <h1 class="h4 fw-bold mb-1">Daftar Pengguna</h1>
-      <p class="text-muted mb-0">Kelola data mahasiswa dengan mudah.</p>
-    </div>
-    <a href="{{ route('user.create') }}" class="btn btn-primary mt-3 mt-md-0 px-4">
-      <i class="bi bi-person-plus me-1"></i> Tambah
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <h1 class="h4 fw-bold m-0">Daftar Pengguna</h1>
+    <a href="{{ route('user.create') }}" class="btn btn-primary">
+      <i class="bi bi-person-plus"></i> Tambah
     </a>
   </div>
 
-  {{-- Pencarian --}}
-  <form method="GET" action="{{ route('user.index') }}" class="mb-4">
-    <div class="input-group shadow-sm">
-      <input
-        type="text"
-        name="q"
-        class="form-control"
-        placeholder="🔍  Cari nama / NPM / kelas..."
-        value="{{ $q }}"
-      >
-      <button class="btn btn-outline-secondary" type="submit">Cari</button>
-      <a href="{{ route('user.index') }}" class="btn btn-light border">Reset</a>
-    </div>
-  </form>
-
-  {{-- Pesan sukses --}}
+  {{-- Notifikasi --}}
   @if (session('success'))
-    <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
       {{ session('success') }}
       <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
   @endif
-
-  {{-- Tabel / Kartu pengguna --}}
-  @if ($users->isEmpty())
-    <div class="text-center text-muted py-5">
-      <i class="bi bi-database fs-1 d-block mb-2"></i>
-      Belum ada data atau tidak ditemukan.
+  @if ($errors->any())
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      Terjadi kesalahan. Periksa input Anda.
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
+  @endif
+
+  @if ($users->isEmpty())
+    <div class="text-center text-muted py-5">Belum ada data.</div>
   @else
     <div class="table-responsive">
-      <table class="table align-middle table-hover border shadow-sm rounded-3 overflow-hidden">
+      <table class="table align-middle table-hover shadow-sm">
         <thead class="table-light">
           <tr class="text-center">
-            <th width="5%">#</th>
-            <th>Nama</th>
+            <th>#</th>
+            <th class="text-start">Nama</th>
             <th>NPM</th>
             <th>Kelas</th>
-            <th width="15%">Aksi</th>
+            <th width="18%">Aksi</th>
           </tr>
         </thead>
         <tbody>
@@ -61,16 +44,22 @@
               <td>{{ $i + 1 }}</td>
               <td class="text-start fw-semibold">{{ $u->nama }}</td>
               <td>{{ $u->nim }}</td>
+              <td><span class="badge bg-primary-subtle text-primary border">{{ $u->nama_kelas }}</span></td>
               <td>
-                <span class="badge bg-primary-subtle text-primary border">{{ $u->nama_kelas }}</span>
-              </td>
-              <td>
-                <button class="btn btn-sm btn-outline-secondary" disabled>
-                  <i class="bi bi-eye"></i>
-                </button>
-                <button class="btn btn-sm btn-outline-primary" disabled>
-                  <i class="bi bi-pencil-square"></i>
-                </button>
+                <div class="d-flex justify-content-center gap-2">
+                  <a href="{{ route('user.edit', $u->id) }}" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-pencil-square"></i> Edit
+                  </a>
+
+                  <form action="{{ route('user.destroy', $u->id) }}" method="POST"
+                        onsubmit="return confirm('Hapus user ini?');">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                      <i class="bi bi-trash"></i> Hapus
+                    </button>
+                  </form>
+                </div>
               </td>
             </tr>
           @endforeach
@@ -80,4 +69,7 @@
   @endif
 
 </div>
+<link rel="stylesheet"
+ href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
 @endsection
