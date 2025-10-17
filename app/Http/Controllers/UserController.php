@@ -7,6 +7,8 @@ use App\Models\UserModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
+
 
 
 class UserController extends Controller
@@ -73,6 +75,47 @@ public function store(Request $request)
             'users' => $users,
             'q'     => $q,
         ]);
+    }
+
+     public function edit(string $id)
+    {
+        $user  = UserModel::findOrFail($id);
+        $kelas = Kelas::orderBy('nama_kelas')->get();
+        return view('edit_user', [
+            'title' => 'Edit User',
+            'user'  => $user,
+            'kelas' => $kelas,
+        ]);
+    }
+
+    public function update(Request $request, string $id)
+    {
+        $user = UserModel::findOrFail($id);
+
+        $validated = $request->validate([
+            'nama'     => 'required|string|max:100',
+            'npm'      => [
+                'required','string','max:30',
+                Rule::unique('users','nim')->ignore($user->id, 'id'), // abaikan diri sendiri
+            ],
+            'kelas_id' => 'required|exists:kelas,id',
+        ]);
+
+        $user->update([
+            'name'     => $validated['nama'],
+            'nim'      => $validated['npm'],
+            'kelas_id' => $validated['kelas_id'],
+        ]);
+
+        return redirect()->route('user.index')->with('success', 'User berhasil diperbarui.');
+    }
+
+    public function destroy(string $id)
+    {
+        $user = UserModel::findOrFail($id);
+        $user->delete(); // Eloquent delete
+
+        return redirect()->route('user.index')->with('success', 'User berhasil dihapus.');
     }
 
     
